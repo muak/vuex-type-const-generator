@@ -120,21 +120,50 @@ const outputFd = (process.argv[3])
 global.window = fakeObject()
 global.document = global.window
 
-const storeDefImp = require(storeDefFilepath).default
+const isInputDir = storeDefFilepath.slice(-1) === '/'
+
+// let storeDefImp = require(storeDefFilepath).default
 const getters = []
 const mutations = []
 const actions = []
-let storeDef
 
-if (typeof storeDefImp === 'function') {
-  // Call the function which initialize the definition with that many fake
-  // objects as needed parameters
-  storeDef = storeDefImp(...Array(storeDefImp.length).fill(global.window))
-} else {
-  storeDef = storeDefImp
+
+if(isInputDir){
+	const dirPath = storeDefFilepath.slice( 0, -1 )
+	fs.readdir(dirPath,(err,files)=>{
+		for(let f of files){
+			storeExtract(storeDefFilepath + f)
+		}
+	})
+}
+else{
+	storeExtract(storeDefFilepath)
 }
 
-extract(storeDef, [])
+function storeExtract(path){
+	let storeDefImp = require(path).default
+	let storeDef
+
+	if (typeof storeDefImp === 'function') {
+		// Call the function which initialize the definition with that many fake
+		// objects as needed parameters
+		storeDef = storeDefImp(...Array(storeDefImp.length).fill(global.window))
+	  } else {
+		storeDef = storeDefImp
+	  }
+	  
+	  extract(storeDef, [])
+}
+
+// if (typeof storeDefImp === 'function') {
+//   // Call the function which initialize the definition with that many fake
+//   // objects as needed parameters
+//   storeDef = storeDefImp(...Array(storeDefImp.length).fill(global.window))
+// } else {
+//   storeDef = storeDefImp
+// }
+
+// extract(storeDef, [])
 
 // Lexicographical sort the const for each group
 ;[getters, mutations, actions].forEach(g => {
