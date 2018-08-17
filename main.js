@@ -202,7 +202,8 @@ fs.closeSync(outputFd)
  *      [2]: The namespace level (i.e. @param namespace.length)
  */
 function propMapper (namespace, prop) {
-  const ctp = (namespace.length === 0) ? [prop] : [...namespace, prop]
+  // const ctp = (namespace.length === 0) ? [prop] : [...namespace, prop]
+  const ctp = [prop]
   return [toTypeConst([prop]), ctp.join('/'), namespace.length]
 }
 
